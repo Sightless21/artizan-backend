@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Service สำหรับ NestJS Backend ของเรา
+  backend:
+    build:
+      context: . # บอกว่า Dockerfile อยู่ในโฟลเดอร์ปัจจุบัน
+      dockerfile: Dockerfile # ชื่อไฟล์ Dockerfile
+    ports:
+      - '3000:3000' # แมปพอร์ต 3000 ของโฮสต์ไปยังพอร์ต 3000 ในคอนเทนเนอร์
+    depends_on:
+      - postgres # บอกว่า backend ต้องรอ postgres รันเสร็จก่อน
+    environment:
+      # DATABASE_URL สำหรับ Prisma ใช้ชื่อ service 'postgres' เป็น host
+      DATABASE_URL: postgresql://postgres:mysecretpassword@postgres:5432/ecommerce_db?schema=public
+      # เพิ่ม env variables อื่นๆ ที่จำเป็นสำหรับ NestJS ที่นี่
+    volumes:
+      - .:/app # แมปโค้ดปัจจุบันเข้ากับ /app ในคอนเทนเนอร์ (Hot Reloading)
+      - /app/node_modules # ไม่ต้องแมป node_modules กลับมาที่โฮสต์ เพื่อป้องกันปัญหา dependency
+    command: npm run start:dev # คำสั่งสำหรับรัน NestJS ในโหมด dev
+
+  # Service สำหรับ PostgreSQL Database
+  postgres:
+    image: postgres:13 # ใช้ PostgreSQL เวอร์ชั่น 13
+    ports:
+      - '5432:5432' # แมปพอร์ต 5432 ของโฮสต์ไปยังพอร์ต 5432 ในคอนเทนเนอร์
+    environment:
+      POSTGRES_DB: ecommerce_db # ชื่อ Database ที่จะสร้างอัตโนมัติ
+      POSTGRES_USER: postgres # ชื่อผู้ใช้
+      POSTGRES_PASSWORD: mysecretpassword # รหัสผ่าน (เปลี่ยนในโปรเจกต์จริง!)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # เก็บข้อมูลลงใน Docker Volume เพื่อให้ข้อมูลไม่หายไปเมื่อคอนเทนเนอร์ถูกลบ
+
+  # Service สำหรับ pgAdmin (เครื่องมือ GUI จัดการฐานข้อมูล)
+  pgadmin:
+    image: dpage/pgadmin4 # Image ของ pgAdmin 4
+    ports:
+      - '5050:80' # แมปพอร์ต 5050 ของโฮสต์ไปยังพอร์ต 80 ของ pgAdmin container
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com # Email สำหรับเข้าสู่ระบบ pgAdmin
+      PGADMIN_DEFAULT_PASSWORD: admin_password # Password สำหรับเข้าสู่ระบบ pgAdmin
+    depends_on:
+      - postgres # บอกว่า pgAdmin ต้องรอ postgres รันเสร็จก่อน
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin # เก็บข้อมูลการตั้งค่า pgAdmin ลงใน Docker Volume
+
+volumes:
+  postgres_data: # กำหนด Docker Volume สำหรับข้อมูล PostgreSQL
+  pgadmin_data: # กำหนด Docker Volume สำหรับข้อมูล pgAdmin
