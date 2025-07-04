@@ -6,10 +6,89 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// Model สำหรับ Product (สินค้า)
+model Product {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  price       Float
+  stock       Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  orderItems  OrderItem[]
+  cartItems   CartItem[]
+}
+
+// Model สำหรับ User (ผู้ใช้)
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String?
+  lastName  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders    Order[]
+  cart      Cart?
+}
+
+// Model สำหรับ Order (คำสั่งซื้อ)
+model Order {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  status      String   @default("PENDING")
+  total       Float
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItems  OrderItem[]
+}
+
+// Model สำหรับ OrderItem (รายการสินค้าในคำสั่งซื้อ)
+model OrderItem {
+  id          String  @id @default(uuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id])
+
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+
+  quantity    Int
+  priceAtOrder Float
+}
+
+// Model สำหรับ Cart (ตะกร้าสินค้า)
+model Cart {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cartItems   CartItem[]
+}
+
+// Model สำหรับ CartItem (รายการสินค้าในตะกร้า)
+model CartItem {
+  id          String  @id @default(uuid())
+  cartId      String
+  cart        Cart    @relation(fields: [cartId], references: [id])
+
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+
+  quantity    Int
 }

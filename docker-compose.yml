@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Service สำหรับ NestJS Backend ของเรา
   backend:
