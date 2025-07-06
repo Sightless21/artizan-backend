@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 
 export class UserEntity {
     @ApiProperty({
@@ -22,6 +23,14 @@ export class UserEntity {
         minLength: 6,
     })
     password: string;
+
+    @ApiProperty({
+        description: 'Role of the user',
+        example: 'USER',
+        enum: Role,
+        type: String,
+    })
+    role: Role;
 
     @ApiProperty({
         description: 'First name of the user',

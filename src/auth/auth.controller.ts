@@ -5,13 +5,13 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiBearerAuth, A
 import { ApiProperty } from '@nestjs/swagger';
 
 
-class LoginDto { // สร้าง DTO สำหรับ Request Body ของ Login
+class LoginDto { 
     @ApiProperty({ description: 'User email', example: 'user@example.com' })
     email: string;
     @ApiProperty({ description: 'User password', example: 'password123' })
     password: string;
 }
-class LoginResponseDto { // สร้าง DTO สำหรับ Response ของ Login
+class LoginResponseDto {
     @ApiProperty({ description: 'JWT Access Token', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJzdWIiOiJjbHN2bTRnOTAwMDE3ZjlkM2UwcDdlMWQ5IiwiaWF0IjoxNzA0MDY3MjAwLCJleHAiOjE3MDQwNzQ0MDB9.some_jwt_token_here' })
     access_token: string;
 }

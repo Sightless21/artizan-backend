@@ -5,6 +5,9 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductEntity } from './entities/product.entity';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 
 @ApiBearerAuth()
 @ApiTags('Products')
@@ -42,7 +45,8 @@ export class ProductsController {
 
     // Endpoint: POST /products
     @Post()
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.ADMIN)
     @ApiOperation({ summary: 'Create a new product' })
     @ApiBody({ type: CreateProductDto, description: 'Data for creating a new product' })
     @ApiCreatedResponse({ description: 'The product has been successfully created.', type: ProductEntity })
@@ -54,7 +58,8 @@ export class ProductsController {
 
     // Endpoint: PUT /products/:id
     @Patch(':id')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.ADMIN)
     @ApiOperation({ summary: 'Update an existing product' })
     @ApiParam({ name: 'id', description: 'ID of the product to update' })
     @ApiBody({ type: UpdateProductDto, description: 'Data for updating the product' })
@@ -67,12 +72,13 @@ export class ProductsController {
 
     // Endpoint: DELETE /products/:id
     @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.ADMIN)
     @ApiOperation({ summary: 'Delete a product' })
     @ApiParam({ name: 'id', description: 'ID of the product to delete' })
     @ApiNoContentResponse({ description: 'The product has been successfully deleted.' })
     @ApiResponse({ status: 404, description: 'Product not found' })
-    @HttpCode(HttpStatus.NO_CONTENT) // กำหนด Status Code เป็น 204 No Content (ไม่มีเนื้อหาคืนกลับ)
+    @HttpCode(HttpStatus.NO_CONTENT)
     async remove(@Param('id') id: string) {
         await this.productsService.remove(id);
     }
