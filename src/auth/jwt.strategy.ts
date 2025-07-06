@@ -2,15 +2,25 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { UsersService } from '../users/users.service'; 
+import { UsersService } from '../users/users.service';
+import { Role } from '@prisma/client';
+declare module 'express' {
+  interface Request {
+    user: {
+      id: string;
+      email: string;
+      role: Role;
+    }
+  }
+}
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  private readonly logger = new Logger(JwtStrategy.name); // <<< เพิ่ม Logger
+  private readonly logger = new Logger(JwtStrategy.name);
 
   constructor(
     private configService: ConfigService,
-    private usersService: UsersService, 
+    private usersService: UsersService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -20,11 +30,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     this.logger.log(`JwtStrategy initialized with secret from ConfigService.`);
   }
 
-  // payload คือข้อมูลที่คุณใส่ใน JWT ตอน sign (email, sub)
   async validate(payload: { email: string, sub: string }) {
     this.logger.debug(`Validating JWT payload: ${JSON.stringify(payload)}`);
-    // สามารถใช้ sub (user ID) หรือ email เพื่อค้นหาผู้ใช้จากฐานข้อมูลได้
-    const user = await this.usersService.findOne(payload.sub); // สมมติว่า findOne รับ ID
+    const user = await this.usersService.findOne(payload.sub);
 
     if (!user) {
       this.logger.warn(`User with ID ${payload.sub} not found during JWT validation.`);
@@ -32,6 +40,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
     this.logger.debug(`User ${user.email} found for JWT payload.`);
 
-    return user; // Return the user object directly
+    return user;
   }
 }

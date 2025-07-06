@@ -15,16 +15,16 @@ datasource db {
 
 // Model สำหรับ Product (สินค้า)
 model Product {
-  id          String    @id @default(uuid())
-  name        String    @unique
+  id          String   @id @default(uuid())
+  name        String   @unique
   description String?
   price       Float
   stock       Int
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  orderItems  OrderItem[]
-  cartItems   CartItem[]
+  orderItems OrderItem[]
+  cartItems  CartItem[]
 }
 
 // Model สำหรับ User (ผู้ใช้)
@@ -32,63 +32,69 @@ model User {
   id        String   @id @default(uuid())
   email     String   @unique
   password  String
+  role      Role     @default(USER)
   firstName String?
   lastName  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  orders    Order[]
-  cart      Cart?
+  orders Order[]
+  cart   Cart?
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 // Model สำหรับ Order (คำสั่งซื้อ)
 model Order {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
-  status      String   @default("PENDING")
-  total       Float
+  status String @default("PENDING")
+  total  Float
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  orderItems  OrderItem[]
+  orderItems OrderItem[]
 }
 
 // Model สำหรับ OrderItem (รายการสินค้าในคำสั่งซื้อ)
 model OrderItem {
-  id          String  @id @default(uuid())
-  orderId     String
-  order       Order   @relation(fields: [orderId], references: [id])
+  id      String @id @default(uuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
 
-  productId   String
-  product     Product @relation(fields: [productId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
 
-  quantity    Int
+  quantity     Int
   priceAtOrder Float
 }
 
 // Model สำหรับ Cart (ตะกร้าสินค้า)
 model Cart {
-  id          String   @id @default(uuid())
-  userId      String   @unique
-  user        User     @relation(fields: [userId], references: [id])
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  cartItems   CartItem[]
+  cartItems CartItem[]
 }
 
 // Model สำหรับ CartItem (รายการสินค้าในตะกร้า)
 model CartItem {
-  id          String  @id @default(uuid())
-  cartId      String
-  cart        Cart    @relation(fields: [cartId], references: [id])
+  id     String @id @default(uuid())
+  cartId String
+  cart   Cart   @relation(fields: [cartId], references: [id])
 
-  productId   String
-  product     Product @relation(fields: [productId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
 
-  quantity    Int
+  quantity Int
 }
